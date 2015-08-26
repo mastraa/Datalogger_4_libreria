@@ -142,6 +142,10 @@ void setup() {
   lcd.print("WAIT Keep MotLes");
   lcd.setCursor(0,1);
   lcd.print(sd.publicName);
+
+  if (TELEMETRY){
+    Serial3.begin(FPVBAUD);
+  }
   
   
   
@@ -184,6 +188,9 @@ ISR(TIMER1_OVF_vect){ //Interrupt function
   if(Serial.available()){
     save = Serial.read()-48; //activate with serial (1-on, 2-off)
     }
+  if(TELEMETRY && Serial3.available()){
+    save = Serial.read()-48; //activate with serial (1-on, 2-off)
+    }
   
   digitalWrite(SAVELED,save); //led-saveState
   if (save){
@@ -216,10 +223,11 @@ void loop() {
   
   if (fix && !changeNameFlag){
     //serialAttitude(mvupc.attitude, nLoop); //Yaw Pitch Roll
-    serialAttitude(mvup.attitude, nLoop); //Yaw Pitch Roll
+    //serialAttitude(mvup.attitude, nLoop); //Yaw Pitch Roll
     //serialGPS(mvup.vel, mvup.gradi, mvup.date, mvup.times, mvup.lat, mvup.lon, nLoop);
-    Serial.println(mvup.tempDS);
+    //Serial.println(mvup.tempDS);
     //serialGPS(mvupc.vel, mvupc.gradi, mvupc.date, mvupc.times, mvupc.lat, mvupc.lon, nLoop);
+    printFPVMVUP(mvup, 5);
   
     sd.openFile('w');//opening file in write mode
     if (nLoop){
