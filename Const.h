@@ -20,7 +20,7 @@
 #define SD_SELECT              4
 #define SAVEPIN               14//BLU
 #define SAVELED               15//VIOLA
-#define BAUD              112500
+#define BAUD              115200
 #define FPVBAUD            57600
 #define TELEMETRY              1
 #define NOMEFILE            "vela000.txt"
