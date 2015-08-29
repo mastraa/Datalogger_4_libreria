@@ -30,6 +30,6 @@
 
 #define DS_PIN               11
 
-#define SKIP_GPS              1
+#define SKIP_GPS              0
 
 #endif

@@ -125,6 +125,7 @@ void setup() {
 //Starting libraries
   Wire.begin();
   Serial.begin(BAUD);
+  Serial.println();
   lcd.start(); //initialize lcd (classic and i2c)
   ds.check();
   sd.init();
@@ -137,17 +138,18 @@ void setup() {
   pinMode(SAVELED, OUTPUT);
   pinMode(SAVEBUTTON,INPUT);
 
-  Serial.println("calibration");
-  Serial.println(sd.publicName);
+  if (TELEMETRY){
+    Serial3.begin(FPVBAUD);
+    Serial3.println("calibration");
+    Serial3.println(sd.publicName);
+  }
+  else{
+    Serial.println("calibration");
+    Serial.println(sd.publicName);
+  }
   lcd.print("WAIT Keep MotLes");
   lcd.setCursor(0,1);
   lcd.print(sd.publicName);
-
-  if (TELEMETRY){
-    Serial3.begin(FPVBAUD);
-  }
-  
-  
   
   offValuesSetting(); //local function, will set offset and gain matrix, it calls MPU function
 
@@ -169,6 +171,7 @@ void setup() {
   //Last thing to do in setup!
   AHRS.start(); //initialize time variable
   Serial.println("Everything OK, press button or send '1' to start save data and '0' to stop saving");// 0 to stop
+  if (TELEMETRY) Serial3.println("Everything OK, press button or send '1' to start save data and '0' to stop saving");// 0 to stop
   lcd.setCursor(0,0);
   lcd.print("OK ");
   lcd.print("Press Save Bt");
@@ -189,7 +192,7 @@ ISR(TIMER1_OVF_vect){ //Interrupt function
     save = Serial.read()-48; //activate with serial (1-on, 2-off)
     }
   if(TELEMETRY && Serial3.available()){
-    save = Serial.read()-48; //activate with serial (1-on, 2-off)
+    save = Serial3.read()-48; //activate with serial (1-on, 2-off)
     }
   
   digitalWrite(SAVELED,save); //led-saveState
@@ -208,7 +211,9 @@ void loop() {
   if (changeNameFlag){//cambio nome
     sd.setName(sd.getFreeName (NOMEFILE, 4, 1)); //set name with the first free index (1 for three numbers, 0 for two numbers)
     changeNameFlag = 0;
-    Serial.println(sd.publicName);
+    if (TELEMETRY) Serial3.println(sd.publicName);
+    else Serial.println(sd.publicName);
+    
     nLoop = 1;
   }
   
@@ -227,14 +232,16 @@ void loop() {
     //serialGPS(mvup.vel, mvup.gradi, mvup.date, mvup.times, mvup.lat, mvup.lon, nLoop);
     //Serial.println(mvup.tempDS);
     //serialGPS(mvupc.vel, mvupc.gradi, mvupc.date, mvupc.times, mvupc.lat, mvupc.lon, nLoop);
-    printFPVMVUP(mvup, 5);
+    if (TELEMETRY) printFPVMVUP(mvup, 5);
+    else printMVUP(mvup);
+    
   
     sd.openFile('w');//opening file in write mode
     if (nLoop){
       sd.printFile(sd.getName());sd.printFile(" - ");
-      //sd.printFileLong(mvupc.date);sd.printFile(" - ");sd.printFileLong(mvupc.times);
       sd.printFile(mvup.date);sd.printFile(" - ");sd.printFile(mvup.times);
       sd.newLineFile();
+      
       nLoop = 0;
     }
   
