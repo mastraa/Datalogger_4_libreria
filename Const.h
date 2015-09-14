@@ -23,6 +23,7 @@
 #define BAUD              115200
 #define FPVBAUD            57600
 #define TELEMETRY              1
+#define LENGTH                 1
 #define NOMEFILE            "vela000.txt"
 
 #define SAVEBUTTON           12
@@ -30,6 +31,6 @@
 
 #define DS_PIN               11
 
-#define SKIP_GPS              0
+#define SKIP_GPS              1
 
 #endif

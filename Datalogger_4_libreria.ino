@@ -171,7 +171,7 @@ void setup() {
   //Last thing to do in setup!
   AHRS.start(); //initialize time variable
   Serial.println("Everything OK, press button or send '1' to start save data and '0' to stop saving");// 0 to stop
-  if (TELEMETRY) Serial3.println("Everything OK, press button or send '1' to start save data and '0' to stop saving");// 0 to stop
+  if (TELEMETRY) Serial3.println("Everything OK, now you can send command");// 0 to stop
   lcd.setCursor(0,0);
   lcd.print("OK ");
   lcd.print("Press Save Bt");
@@ -192,7 +192,8 @@ ISR(TIMER1_OVF_vect){ //Interrupt function
     save = Serial.read()-48; //activate with serial (1-on, 2-off)
     }
   if(TELEMETRY && Serial3.available()){
-    save = Serial3.read()-48; //activate with serial (1-on, 2-off)
+    //save = Serial3.read()-48; //activate with serial (1-on, 2-off)
+    leggiComando();//funzione locale
     }
   
   digitalWrite(SAVELED,save); //led-saveState
@@ -212,7 +213,7 @@ void loop() {
     sd.setName(sd.getFreeName (NOMEFILE, 4, 1)); //set name with the first free index (1 for three numbers, 0 for two numbers)
     changeNameFlag = 0;
     if (TELEMETRY) Serial3.println(sd.publicName);
-    else Serial.println(sd.publicName);
+    Serial.println(sd.publicName);
     
     nLoop = 1;
   }
@@ -345,7 +346,21 @@ offMag[0] =    68.380833;
  
   //Setting gyro offset matrix
   MPU.offsetGyr(GYRO_SAMPLES, offGyr);
+}
 
+void leggiComando(){
+  byte command[LENGTH+1];
+  byte error = 100;
+  if(Serial3.available()){
+    error = readCommand(command, LENGTH+1);
+    if (!error){
+      if(!command[0]){
+        if(command[1]==5) save = 1;
+        if(command[1]==6) save = 0;
+      }
+    }
+    sendCommand(0, &error, sizeof(error)/sizeof(byte), '$', '\n');
+  }
 }
 
 
