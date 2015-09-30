@@ -24,6 +24,7 @@
 #define FPVBAUD            57600
 #define TELEMETRY              1
 #define LENGTH                 1
+#define CONNECTION_TIMEOUT    60000//millis
 #define NOMEFILE            "vela000.txt"
 
 #define SAVEBUTTON           12

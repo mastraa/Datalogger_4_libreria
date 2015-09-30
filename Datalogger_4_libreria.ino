@@ -34,7 +34,7 @@ DS18B20   --> Digital pin 37                                  5V
 TCN75A    --> SDL-21 SCA-20                                   5V
 MPU6050   --> SDL-21 SCA-20                                 3.3V
 HCM5883L  --> SDL-21 SCA-20                                 3.3V
-INA12P    --> A0 (sinistra) - A1 (destra)                     5V
+INA125P    --> A0 (sinistra) - A1 (destra)                    5V
 SD-Shield -->
 LCD       --> SDL-21 SCA-20 or pin 41, 43, 45, 47, 49, 48
 ##########################################################
@@ -83,6 +83,7 @@ float gainMag[3][3];      //gyroscope calibration matrix
 float wind[2];            //speed, direction
 
 unsigned int timer_counter;   //valore di partenza della variabile 'overflow'
+unsigned long connectionTimer; //controlla quanto tempo è passato dall'ultima informazione del computer
 
 boolean save = FALSE;
 boolean fix = 0;
@@ -96,6 +97,8 @@ float left, right;
 byte cyclecounter = 0;
 
 long delayTime;
+
+boolean telemetry = TELEMETRY;
 
 //lascio qui la definizione per definire solo quella necessaria
 //typedef struct Mvupc_t mvupc_t;
@@ -191,7 +194,7 @@ ISR(TIMER1_OVF_vect){ //Interrupt function
   if(Serial.available()){
     save = Serial.read()-48; //activate with serial (1-on, 2-off)
     }
-  if(TELEMETRY && Serial3.available()){
+  if(telemetry && Serial3.available()){
     //save = Serial3.read()-48; //activate with serial (1-on, 2-off)
     leggiComando();//funzione locale
     }
@@ -212,7 +215,7 @@ void loop() {
   if (changeNameFlag){//cambio nome
     sd.setName(sd.getFreeName (NOMEFILE, 4, 1)); //set name with the first free index (1 for three numbers, 0 for two numbers)
     changeNameFlag = 0;
-    if (TELEMETRY) Serial3.println(sd.publicName);
+    if (telemetry) Serial3.println(sd.publicName);
     Serial.println(sd.publicName);
     
     nLoop = 1;
@@ -233,7 +236,7 @@ void loop() {
     //serialGPS(mvup.vel, mvup.gradi, mvup.date, mvup.times, mvup.lat, mvup.lon, nLoop);
     //Serial.println(mvup.tempDS);
     //serialGPS(mvupc.vel, mvupc.gradi, mvupc.date, mvupc.times, mvupc.lat, mvupc.lon, nLoop);
-    if (TELEMETRY) printFPVMVUP(mvup, 5);
+    if (telemetry) printFPVMVUP(mvup, 5);
     else printMVUP(mvup);
     
   
@@ -267,7 +270,8 @@ void loop() {
   }
   
   //WIND.readTiny(5, wind); //Read AtTiny85 wind station
-
+  
+  checkConnection(); //check the time passed from the last connection signal
 }
 
 void offValuesSetting(){
@@ -352,15 +356,22 @@ void leggiComando(){
   byte command[LENGTH+1];
   byte error = 100;
   if(Serial3.available()){
-    error = readCommand(command, LENGTH+1);
+    error = readCommand(command, LENGTH+1);//it will return datas in command buffer
     if (!error){
       if(!command[0]){
-        if(command[1]==5) save = 1;
-        if(command[1]==6) save = 0;
+        if(command[1]==5) save = 1;//save on
+        if(command[1]==6) save = 0;//save off
+        connectionTimer = millis();
+        telemetry = 1;
       }
     }
-    sendCommand(0, &error, sizeof(error)/sizeof(byte), '$', '\n');
+    sendCommand(0, &error, sizeof(error)/sizeof(byte), '$', '\n');//send acknowledge
   }
+}
+
+void checkConnection(){
+  if (connectionTimer && connectionTimer + CONNECTION_TIMEOUT < millis()) telemetry = 0;
+  Serial.print(save);Serial.print('\t');Serial.println(telemetry);
 }
 
 
