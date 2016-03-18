@@ -204,6 +204,7 @@ ISR(TIMER1_OVF_vect){ //Interrupt function
 
     //fix = gps.readGPS(&mvupc.vel, &mvupc.gradi, &mvupc.date, &mvupc.times, &mvupc.lat, &mvupc.lon); //gps reading function
     fix = gps.readGPS(&mvup.vel, &mvup.gradi, &mvup.date, &mvup.times, &mvup.lat, &mvup.lon); //gps reading function
+    Serial.println(mvup.times);
     if (SKIP_GPS){
       fix = 1;
       }
@@ -261,8 +262,8 @@ void loop() {
     sd.closeFile(); //close file
   
     //lcd.Attitude(mvupc.attitude);
-    //lcd.Attitude(mvup.attitude);
-    lcd.AttitudeShort(mvup.attitude, sd.publicName);
+    lcd.Attitude(mvup.attitude);
+    //lcd.AttitudeShort(mvup.attitude, sd.publicName);
   
     fix = 0;
     ++cyclecounter;
@@ -271,7 +272,7 @@ void loop() {
   
   //WIND.readTiny(5, wind); //Read AtTiny85 wind station
   
-  checkConnection(); //check the time passed from the last connection signal
+  checkConnection(); //check the time passed from the last connection signal and send savestatus and telemetry status
 }
 
 void offValuesSetting(){

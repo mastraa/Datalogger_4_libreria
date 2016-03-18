@@ -19,7 +19,7 @@
 #define LCD_ADD             0x27
 #define SD_SELECT              4
 #define SAVEPIN               14//BLU
-#define SAVELED               15//VIOLA
+//#define SAVELED               15//VIOLA
 #define BAUD              115200
 #define FPVBAUD            57600
 #define TELEMETRY              1
@@ -32,6 +32,6 @@
 
 #define DS_PIN               11
 
-#define SKIP_GPS              1
+#define SKIP_GPS              0
 
 #endif
