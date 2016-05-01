@@ -22,7 +22,7 @@
 //#define SAVELED               15//VIOLA
 #define BAUD              115200
 #define FPVBAUD            57600
-#define TELEMETRY              1
+#define TELEMETRY              0
 #define LENGTH                 1
 #define CONNECTION_TIMEOUT    60000//millis
 #define NOMEFILE            "vela000.txt"
