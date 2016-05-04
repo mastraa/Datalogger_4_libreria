@@ -192,7 +192,7 @@ ISR(TIMER1_OVF_vect){ //Interrupt function
       }
     }
   if(Serial.available()){
-    save = Serial.read()-48; //activate with serial (1-on, 2-off)
+    save = Serial.read()-48; //activate with serial (1-on, 0-off)
     }
   if(telemetry && Serial3.available()){
     //save = Serial3.read()-48; //activate with serial (1-on, 2-off)
